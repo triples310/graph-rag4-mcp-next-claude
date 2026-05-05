@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
-import ChatWindow from "@/components/ChatWindow";
+import ChatWindow from "@/components/Chatwindow";
 import { apiLogout, apiStatus, Message } from "@/lib/api";
 
 interface ChatSession {

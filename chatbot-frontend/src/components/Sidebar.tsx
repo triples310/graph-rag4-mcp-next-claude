@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import UploadModal from "./UploadModal";
+import UploadModal from "@/components/Uploadmodal";
 
 interface Props {
   username: string;
