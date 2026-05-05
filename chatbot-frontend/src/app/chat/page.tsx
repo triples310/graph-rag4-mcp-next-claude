@@ -21,12 +21,13 @@ function makeSession(): ChatSession {
 
 export default function ChatPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [username] = useState<string>(() => (typeof window === "undefined" ? "" : localStorage.getItem("username") ?? ""));
   const [pdfName, setPdfName] = useState<string | null>(null);
   const [hasGraph, setHasGraph] = useState(false);
   const [mcpConnected, setMcpConnected] = useState(false);
-  const [sessions, setSessions] = useState<ChatSession[]>([makeSession()]);
-  const [activeChatId, setActiveChatId] = useState<string>("");
+  const initialSession = makeSession();
+  const [sessions, setSessions] = useState<ChatSession[]>([initialSession]);
+  const [activeChatId, setActiveChatId] = useState<string>(initialSession.id);
 
   // Auth guard + load user state
   useEffect(() => {
@@ -36,13 +37,6 @@ export default function ChatPage() {
       router.replace("/login");
       return;
     }
-    setUsername(user);
-    setSessions((s) => {
-      const first = s[0];
-      setActiveChatId(first.id);
-      return s;
-    });
-
     // Check graph status
     apiStatus()
       .then((data) => {
@@ -87,7 +81,7 @@ export default function ChatPage() {
   if (!username) return null;
 
   return (
-    <div style={styles.layout}>
+    <div className="flex h-screen overflow-hidden bg-black">
       <Sidebar
         username={username}
         pdfName={pdfName}
@@ -101,7 +95,7 @@ export default function ChatPage() {
         onSelectChat={handleSelectChat}
         onNewChat={handleNewChat}
       />
-      <main style={styles.main}>
+      <main className="flex flex-1 flex-col overflow-hidden">
         <ChatWindow
           messages={activeSession?.messages ?? []}
           onNewMessage={handleNewMessage}
@@ -109,35 +103,6 @@ export default function ChatPage() {
           pdfName={pdfName}
         />
       </main>
-
-      {/* Typing dot animation */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.2; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1); }
-        }
-        input:focus, textarea:focus {
-          border-color: #333 !important;
-        }
-        button:hover:not(:disabled) {
-          opacity: 0.85;
-        }
-      `}</style>
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: {
-    display: "flex",
-    height: "100vh",
-    overflow: "hidden",
-    background: "#0a0a0a",
-  },
-  main: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-  },
-};
